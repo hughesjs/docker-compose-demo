@@ -11,8 +11,8 @@ public static class NotesDependencyInjectionExtensions
 {
     public static IServiceCollection AddNotes(this IServiceCollection services)
     {
-        services.AddSingleton<IConnectionMultiplexer, ConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect("localhost"));
-        services.AddTransient<IMongoClient>(_ => new MongoClient("mongodb://localhost:27017"));
+        services.AddSingleton<IConnectionMultiplexer, ConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect("172.17.0.1"));
+        services.AddTransient<IMongoClient>(_ => new MongoClient("mongodb://172.17.0.1:27017"));
         services.AddTransient<NoteRepository>();
         services.AddTransient<IRepository<Note>, RedisCachedRepository<Note>>(c => new(
             c.GetRequiredService<NoteRepository>(),
