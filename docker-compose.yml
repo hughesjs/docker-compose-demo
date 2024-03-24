@@ -16,8 +16,8 @@ services:
   
   webapp:
     build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     deploy:
       replicas: 4
     networks:
