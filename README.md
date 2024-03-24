@@ -13,8 +13,8 @@ version: "3.8"
 services:
   webapp:
     build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports: ["5000:5000"]
   mongo: 
     image: mongo:latest
@@ -34,19 +34,24 @@ services:
 1. Modify docker-compose
 1. Demo that data now survives a restart
 
-```
+```docker-compose
 version: "3.8"
 services:
   webapp:
     build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports: ["8080:8080"]
+    depends_on: 
+      - mongo
+      - redis
+      
   mongo: 
     image: mongo:latest
     ports: ["27017:27017"]
     volumes: 
       - mongodata:/data/db
+      
   redis:
     image: redis:latest
     ports: ["6379:6379"]
@@ -56,8 +61,6 @@ services:
 volumes:
     mongodata:
     redisdata:
-```docker-compose
-
 ```
 
 ![Step 2 Diagram](notes-assets/step-2.png)
