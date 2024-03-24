@@ -14,8 +14,8 @@ version: "3.8"
 services:
   webapp:
     build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports: ["5000:5000"]
     depends_on:
       - mongo
@@ -43,8 +43,8 @@ version: "3.8"
 services:
   webapp:
     build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports: ["8080:8080"]
     depends_on:
       - mongo
@@ -90,8 +90,8 @@ services:
   
   webapp:
     build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     networks:
       - host-network
       - internal-network
@@ -145,8 +145,8 @@ services:
   
   reverse-proxy:
     build: 
-      context: ./nginx
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports:
       - "80:80"
       - "443:443"
@@ -212,8 +212,8 @@ services:
   
   reverse-proxy:
     build: 
-      context: ./nginx
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports:
       - "80:80"
       - "443:443"
