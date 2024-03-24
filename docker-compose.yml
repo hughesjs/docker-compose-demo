@@ -11,6 +11,8 @@ services:
     networks:
       - host-network
       - internal-network
+    depends_on:
+      - webapp
   
   webapp:
     container_name: webapp
@@ -19,6 +21,9 @@ services:
       dockerfile: Dockerfile
     networks:
       - internal-network
+    depends_on:
+      - mongo
+      - redis
       
   mongo:
     container_name: mongo
