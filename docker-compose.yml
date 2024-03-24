@@ -4,11 +4,19 @@ services:
     build:
       context: webapp/DemoWebApp
       dockerfile: Dockerfile
-    ports: ["5000:5000"]
+    ports: ["8080:8080"]
   mongo: 
     image: mongo:latest
     ports: ["27017:27017"]
+    volumes: 
+      - mongodata:/data/db
   redis:
     image: redis:latest
     ports: ["6379:6379"]
+    volumes: 
+      - redisdata:/data
+    
+volumes:
+    mongodata:
+    redisdata:
 

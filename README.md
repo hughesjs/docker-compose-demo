@@ -5,7 +5,8 @@
 1. Write docker-compose
 1. Demo posting, cache-fetch, cache-miss
 1. Demo `netstat -ntlp` and that we're consuming ports on our host
-1. Potential for collisions with other apps and/or port exhaustion. Also a pain to scale as each replica needs its own config. 
+1. Potential for collisions with other apps and/or port exhaustion. Also a pain to scale as each replica needs its own config.
+1. Demo lack of persistence
 
 ```docker-compose
 version: "3.8"
@@ -23,5 +24,40 @@ services:
     ports: ["6379:6379"]
 ```
 
-![Step Diagram](notes-assets/step-1.png)
+![Step 1 Diagram](notes-assets/step-1.png)
 
+# Step 2
+
+1. Show step 2 design
+1. Quickly rehash what volumes are
+1. Mention the persistence mountpoints for redis and mongo (`/data` by coincidence)
+1. Modify docker-compose
+1. Demo that data now survives a restart
+
+```
+version: "3.8"
+services:
+  webapp:
+    build:
+      context: webapp/DemoWebApp
+      dockerfile: Dockerfile
+    ports: ["8080:8080"]
+  mongo: 
+    image: mongo:latest
+    ports: ["27017:27017"]
+    volumes: 
+      - mongodata:/data/db
+  redis:
+    image: redis:latest
+    ports: ["6379:6379"]
+    volumes: 
+      - redisdata:/data
+    
+volumes:
+    mongodata:
+    redisdata:
+```docker-compose
+
+```
+
+![Step 2 Diagram](notes-assets/step-2.png)
