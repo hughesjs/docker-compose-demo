@@ -181,3 +181,72 @@ networks:
 ```
 
 ![Step 4 Diagram](notes-assets/step-4.png)
+
+# Step 5
+
+1. Show the design for step 5
+1. Discuss the need for load balancing
+1. Acknowledge that we're only scaling the webapp here and that you might want to scale dbs too
+1. Modify docker-compose
+1. Modify nginx.conf
+1. Show multiple replicas created
+1. Show in webapp logs that repeate create requests are being round-robinned
+
+```docker-compose
+version: "3.8"
+services:
+  
+  reverse-proxy:
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - host-network
+      - load-balancer-network
+    depends_on:
+      - webapp
+  
+  webapp:
+    build:
+      context: ./webapp/DemoWebApp
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 4
+    networks:
+      - internal-network
+      - load-balancer-network    
+
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    volumes: 
+      - mongodata:/data/db
+    networks:
+      - internal-network
+        
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes: 
+      - redisdata:/data
+    networks:
+      - internal-network
+    
+volumes:
+    mongodata:
+    redisdata:
+
+networks:
+  host-network:
+    external: true
+  internal-network:
+    external: false
+  load-balancer-network:
+    external: false
+```
+
+![Step 5 Diagram](notes-assets/step-5.png)
+

@@ -10,16 +10,20 @@ services:
       - "443:443"
     networks:
       - host-network
-      - internal-network
+      - load-balancer-network
+    depends_on:
+      - webapp
   
   webapp:
-    container_name: webapp
     build:
       context: ./webapp/DemoWebApp
       dockerfile: Dockerfile
+    deploy:
+      replicas: 4
     networks:
       - internal-network
-      
+      - load-balancer-network    
+
   mongo:
     container_name: mongo
     image: mongo:latest
@@ -44,4 +48,6 @@ networks:
   host-network:
     external: true
   internal-network:
+    external: false
+  load-balancer-network:
     external: false
