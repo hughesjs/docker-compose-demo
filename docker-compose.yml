@@ -1,22 +1,36 @@
 version: "3.8"
 services:
+  
   webapp:
     build:
-      context: webapp/DemoWebApp
+      context: ./webapp/DemoWebApp
       dockerfile: Dockerfile
-    ports: ["8080:8080"]
-  mongo: 
+    networks:
+      - host-network
+      - internal-network
+      
+  mongo:
+    container_name: mongo
     image: mongo:latest
-    ports: ["27017:27017"]
     volumes: 
       - mongodata:/data/db
+    networks:
+      - internal-network
+        
   redis:
+    container_name: redis
     image: redis:latest
-    ports: ["6379:6379"]
     volumes: 
       - redisdata:/data
+    networks:
+      - internal-network
     
 volumes:
     mongodata:
     redisdata:
 
+networks:
+  host-network:
+    external: true
+  internal-network:
+    external: false

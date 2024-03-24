@@ -13,9 +13,7 @@ public static class NotesWebApplicationExtensions
                 var option = await notesRepo.Get(id);
 
                 return option.HasSome ? Results.Ok(option.Value) : Results.NotFound();
-            })
-            .WithName("GetNotes")
-            .WithOpenApi();
+            });
 
         app.MapPost("/notes", async ([FromServices] IRepository<Note> notesRepo, [FromBody] Note note) =>
         {
