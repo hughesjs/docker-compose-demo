@@ -12,9 +12,12 @@ version: "3.8"
 services:
   webapp:
     build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     ports: ["5000:5000"]
+    depends_on:
+      - mongo
+      - redis
   mongo: 
     image: mongo:latest
     ports: ["27017:27017"]
