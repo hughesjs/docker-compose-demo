@@ -23,6 +23,9 @@ services:
     networks:
       - internal-network
       - load-balancer-network    
+    depends_on:
+      - mongo
+      - redis
 
   mongo:
     container_name: mongo

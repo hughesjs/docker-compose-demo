@@ -1,252 +1,37 @@
-# Step 1
+# Docker Compose Training
 
-1. Show step 1 design
-1. Quickly talk through the WebApp (NotesWebApplicationExtensions.cs)
-1. Write docker-compose
-1. Acknowledge using rider for docker-compose for ease. `docker-compose up/down`
-1. Demo posting, cache-fetch, cache-miss
-1. Demo `netstat -ntlp` and that we're consuming ports on our host
-1. Potential for collisions with other apps and/or port exhaustion. Also a pain to scale as each replica needs its own config.
-1. Demo lack of persistence
+This repository contains training material for docker compose. It uses a dotnet webapp, mongo, redis, and nginx.
 
-```docker-compose
-version: "3.8"
-services:
-  webapp:
-    build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
-    ports: ["5000:5000"]
-  mongo: 
-    image: mongo:latest
-    ports: ["27017:27017"]
-  redis:
-    image: redis:latest
-    ports: ["6379:6379"]
+This material is meant to be consumed as a live demonstration, but can be used for self-study.
+
+⚠ This is written for use on a linux machine. If you're using WSL docker, the networking can be a bit weird but the concepts are the same. ⚠
+
+## Prerequisites
+
+1. Understand how to use the docker cli.
+1. Understand how to write a Dockerfile.
+
+## Learning Objectives
+
+1. Understand how to combine multiple services into a single docker-compose file.
+1. Understand how to both build and fetch images in a docker-compose file.
+1. Understand how to add persistence volumes to these services.
+1. Understand how to use docker networking, both internal and external.
+1. Understand how to add a reverse proxy to your docker-compose stack.
+1. Understand how to add load balancing to your docker-compose stack.
+
+## Using this Repository
+
+I have tried my best to break this down into small, digestible chunks. Each chunk is in its own branch. You can use the following commands to navigate between branches:
+
+```bash
+git switch stage-x
 ```
 
-![Step 1 Diagram](notes-assets/step-1.png)
+Where `x` is the stage number you want to view.
 
-# Step 2
+Each stage has a `speaker-notes.md` file that contains the notes I would use if I were presenting this material. You can use this to follow along with the material.
 
-1. Show step 2 design
-1. Quickly rehash what volumes are
-1. Mention the persistence mountpoints for redis and mongo (`/data` by coincidence)
-1. Modify docker-compose
-1. Demo that data now survives a restart
+The PRs for each stage are also a potentially useful reference point, but I did have to backport fixes to mistakes as I went to the various branches, so they aren't perfect.
 
 ```
-version: "3.8"
-services:
-  webapp:
-    build:
-      context: webapp/DemoWebApp
-      dockerfile: Dockerfile
-    ports: ["8080:8080"]
-  mongo: 
-    image: mongo:latest
-    ports: ["27017:27017"]
-    volumes: 
-      - mongodata:/data/db
-  redis:
-    image: redis:latest
-    ports: ["6379:6379"]
-    volumes: 
-      - redisdata:/data
-    
-volumes:
-    mongodata:
-    redisdata:
-```docker-compose
-
-```
-
-![Step 2 Diagram](notes-assets/step-2.png)
-
-# Step 3
-
-1. Show step 3 design
-1. Discuss how docker manages its own virtual networks
-1. Internal networks are only accessible by containers in a specific compose stack
-1. External networks are accessible by anything in the docker daemon or on the host
-1. Have to manually create external network `docker network create host-network`
-1. Internal networks created on `docker-compose up`
-1. Modify docker-compose
-1. Get IP of webapp using `docker inspect <id> | jq '.[0].NetworkSettings.Networks."host-network".IPAddress'`
-1. Demonstrate app doesn't work (ask why, no more ports on host)
-1. Modify settings so apps can resolve eachother
-1. Demonstrate app now works
-1. Demonstrate no host ports used with `netstat -ntlp`
-
-```docker-compose
-version: "3.8"
-services:
-  
-  webapp:
-    build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
-    networks:
-      - host-network
-      - internal-network
-      
-  mongo:
-    container_name: mongo
-    image: mongo:latest
-    volumes: 
-      - mongodata:/data/db
-    networks:
-      - internal-network
-        
-  redis:
-    container_name: redis
-    image: redis:latest
-    volumes: 
-      - redisdata:/data
-    networks:
-      - internal-network
-    
-volumes:
-    mongodata:
-    redisdata:
-
-networks:
-  host-network:
-    external: true
-  internal-network:
-    external: false
-```
-
-![Step 3 Diagram](notes-assets/step-3.png)
-
-# Step 4
-
-1. Show step 4 design
-1. Discuss why we'd use a reverse proxy (single ingress point, single host port, upgrading https, enforcing policies etc.)
-1. Modify docker-compose to add nginx bound to host port 443
-1. Use dockerfile to generate cert rather than nginx:latest
-1. Add config file and mount volume
-1. Mention certbot for generating SSL certificates
-1. Access app through `localhost/swagger`
-1. Note http->https upgrade
-
-```docker-compose
-version: "3.8"
-services:
-  
-  reverse-proxy:
-    build: 
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - host-network
-      - internal-network
-  
-  webapp:
-    container_name: webapp
-    build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
-    networks:
-      - internal-network
-      
-  mongo:
-    container_name: mongo
-    image: mongo:latest
-    volumes: 
-      - mongodata:/data/db
-    networks:
-      - internal-network
-        
-  redis:
-    container_name: redis
-    image: redis:latest
-    volumes: 
-      - redisdata:/data
-    networks:
-      - internal-network
-    
-volumes:
-    mongodata:
-    redisdata:
-
-networks:
-  host-network:
-    external: true
-  internal-network:
-    external: false
-```
-
-![Step 4 Diagram](notes-assets/step-4.png)
-
-# Step 5
-
-1. Show the design for step 5
-1. Discuss the need for load balancing
-1. Acknowledge that we're only scaling the webapp here and that you might want to scale dbs too
-1. Modify docker-compose
-1. Modify nginx.conf
-1. Show multiple replicas created
-1. Show in webapp logs that repeate create requests are being round-robinned
-
-```docker-compose
-version: "3.8"
-services:
-  
-  reverse-proxy:
-    build: 
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - host-network
-      - load-balancer-network
-    depends_on:
-      - webapp
-  
-  webapp:
-    build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
-    deploy:
-      replicas: 4
-    networks:
-      - internal-network
-      - load-balancer-network    
-
-  mongo:
-    container_name: mongo
-    image: mongo:latest
-    volumes: 
-      - mongodata:/data/db
-    networks:
-      - internal-network
-        
-  redis:
-    container_name: redis
-    image: redis:latest
-    volumes: 
-      - redisdata:/data
-    networks:
-      - internal-network
-    
-volumes:
-    mongodata:
-    redisdata:
-
-networks:
-  host-network:
-    external: true
-  internal-network:
-    external: false
-  load-balancer-network:
-    external: false
-```
-
-![Step 5 Diagram](notes-assets/step-5.png)
-
