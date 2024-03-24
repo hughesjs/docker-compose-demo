@@ -33,5 +33,3 @@ Where `x` is the stage number you want to view.
 Each stage has a `speaker-notes.md` file that contains the notes I would use if I were presenting this material. You can use this to follow along with the material.
 
 The PRs for each stage are also a potentially useful reference point, but I did have to backport fixes to mistakes as I went to the various branches, so they aren't perfect.
-
-```
