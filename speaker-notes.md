@@ -267,3 +267,8 @@ networks:
 
 ![Step 5 Diagram](notes-assets/step-5.png)
 
+# Extra Things not Shown
+
+1. You can use `env` blocks to pass env vars into your containers
+2. You can use `arg` blocks to pass build args when building your containers 
+3. You should use `secrets` for sensitive data
