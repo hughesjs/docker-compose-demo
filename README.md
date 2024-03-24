@@ -3,6 +3,7 @@
 1. Show step 1 design
 1. Quickly talk through the WebApp (NotesWebApplicationExtensions.cs)
 1. Write docker-compose
+1. Acknowledge using rider for docker-compose for ease. `docker-compose up/down`
 1. Demo posting, cache-fetch, cache-miss
 1. Demo `netstat -ntlp` and that we're consuming ports on our host
 1. Potential for collisions with other apps and/or port exhaustion. Also a pain to scale as each replica needs its own config.
@@ -117,3 +118,66 @@ networks:
 ```
 
 ![Step 3 Diagram](notes-assets/step-3.png)
+
+# Step 4
+
+1. Show step 4 design
+1. Discuss why we'd use a reverse proxy (single ingress point, single host port, upgrading https, enforcing policies etc.)
+1. Modify docker-compose to add nginx bound to host port 443
+1. Use dockerfile to generate cert rather than nginx:latest
+1. Add config file and mount volume
+1. Mention certbot for generating SSL certificates
+1. Access app through `localhost/swagger`
+1. Note http->https upgrade
+
+```docker-compose
+version: "3.8"
+services:
+  
+  reverse-proxy:
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - host-network
+      - internal-network
+  
+  webapp:
+    container_name: webapp
+    build:
+      context: ./webapp/DemoWebApp
+      dockerfile: Dockerfile
+    networks:
+      - internal-network
+      
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    volumes: 
+      - mongodata:/data/db
+    networks:
+      - internal-network
+        
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes: 
+      - redisdata:/data
+    networks:
+      - internal-network
+    
+volumes:
+    mongodata:
+    redisdata:
+
+networks:
+  host-network:
+    external: true
+  internal-network:
+    external: false
+```
+
+![Step 4 Diagram](notes-assets/step-4.png)
