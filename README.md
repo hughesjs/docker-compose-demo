@@ -75,6 +75,7 @@ volumes:
 1. Demonstrate app doesn't work (ask why, no more ports on host)
 1. Modify settings so apps can resolve eachother
 1. Demonstrate app now works
+1. Demonstrate no host ports used with `netstat -ntlp`
 
 ```docker-compose
 version: "3.8"
