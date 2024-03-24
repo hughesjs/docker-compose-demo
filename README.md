@@ -61,3 +61,59 @@ volumes:
 ```
 
 ![Step 2 Diagram](notes-assets/step-2.png)
+
+# Step 3
+
+1. Show step 3 design
+1. Discuss how docker manages its own virtual networks
+1. Internal networks are only accessible by containers in a specific compose stack
+1. External networks are accessible by anything in the docker daemon or on the host
+1. Have to manually create external network `docker network create host-network`
+1. Internal networks created on `docker-compose up`
+1. Modify docker-compose
+1. Get IP of webapp using `docker inspect <id> | jq '.[0].NetworkSettings.Networks."host-network".IPAddress'`
+1. Demonstrate app doesn't work (ask why, no more ports on host)
+1. Modify settings so apps can resolve eachother
+1. Demonstrate app now works
+1. Demonstrate no host ports used with `netstat -ntlp`
+
+```docker-compose
+version: "3.8"
+services:
+  
+  webapp:
+    build:
+      context: ./webapp/DemoWebApp
+      dockerfile: Dockerfile
+    networks:
+      - host-network
+      - internal-network
+      
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    volumes: 
+      - mongodata:/data/db
+    networks:
+      - internal-network
+        
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes: 
+      - redisdata:/data
+    networks:
+      - internal-network
+    
+volumes:
+    mongodata:
+    redisdata:
+
+networks:
+  host-network:
+    external: true
+  internal-network:
+    external: false
+```
+
+![Step 3 Diagram](notes-assets/step-3.png)
