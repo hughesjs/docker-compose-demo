@@ -3,8 +3,8 @@ services:
   
   webapp:
     build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     networks:
       - host-network
       - internal-network
