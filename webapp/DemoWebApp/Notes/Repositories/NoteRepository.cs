@@ -1,9 +1,10 @@
 using DemoWebApp.Common;
+using DemoWebApp.Notes.Models;
 using MongoDB.Driver;
 
-namespace DemoWebApp.Notes;
+namespace DemoWebApp.Notes.Repositories;
 
-public class NoteRepository : IRepository<Note>
+internal class NoteRepository : IRepository<Note>
 {
    private readonly IMongoCollection<DecoratedEntity<Note>> _collection; 
    private readonly ILogger<NoteRepository> _logger;
