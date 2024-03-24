@@ -17,6 +17,9 @@ services:
       context: webapp/DemoWebApp
       dockerfile: Dockerfile
     ports: ["5000:5000"]
+    depends_on:
+      - mongo
+      - redis
   mongo: 
     image: mongo:latest
     ports: ["27017:27017"]
@@ -43,6 +46,9 @@ services:
       context: webapp/DemoWebApp
       dockerfile: Dockerfile
     ports: ["8080:8080"]
+    depends_on:
+      - mongo
+      - redis
   mongo: 
     image: mongo:latest
     ports: ["27017:27017"]
@@ -89,6 +95,9 @@ services:
     networks:
       - host-network
       - internal-network
+    depends_on:
+      - mongo
+      - redis
       
   mongo:
     container_name: mongo
@@ -144,6 +153,8 @@ services:
     networks:
       - host-network
       - internal-network
+    depends_on:
+      - webapp
   
   webapp:
     container_name: webapp
@@ -152,6 +163,9 @@ services:
       dockerfile: Dockerfile
     networks:
       - internal-network
+    depends_on:
+      - mongo
+      - redis
       
   mongo:
     container_name: mongo
@@ -218,6 +232,9 @@ services:
     networks:
       - internal-network
       - load-balancer-network    
+    depends_on:
+      - mongo
+      - redis
 
   mongo:
     container_name: mongo
