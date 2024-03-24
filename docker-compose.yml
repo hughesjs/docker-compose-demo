@@ -17,8 +17,8 @@ services:
   webapp:
     container_name: webapp
     build:
-      context: ./webapp/DemoWebApp
-      dockerfile: Dockerfile
+      context: webapp
+      dockerfile: DemoWebApp/Dockerfile
     networks:
       - internal-network
     depends_on:
